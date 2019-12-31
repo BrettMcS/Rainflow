@@ -1,7 +1,7 @@
 # test_rainflow.py
 
 import sys
-sys.path.insert(0, '..\\cyclecount')
+sys.path.insert(0, '..\\rainflow')
 
 import numpy as np
 
@@ -16,8 +16,8 @@ def test_ranges_means():
 
     ranges, means = rainflow.ranges_means(data)
 
-    assert ranges == range_ans
-    assert means == mean_ans
+    assert np.allclose(ranges, range_ans)
+    assert np.allclose(means, mean_ans)
 
 
 def test_get_ranges_and_means():
@@ -28,5 +28,5 @@ def test_get_ranges_and_means():
 
     ranges, means = rainflow.ranges_means(data)
 
-    assert np.alltrue(ranges == range_ans)
-    assert np.alltrue(means == mean_ans)
+    assert np.allclose(ranges, range_ans)
+    assert np.allclose(means, mean_ans)

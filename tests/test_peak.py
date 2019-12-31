@@ -1,11 +1,11 @@
 # test_peak.py
 
 import sys
-sys.path.insert(0, '..\\cyclecount')
+sys.path.insert(0, '..\\rainflow')
 
 import numpy as np
 
-from rainflow import get_turns
+import rainflow
 
 
 def test_get_turns():
@@ -25,15 +25,14 @@ def test_get_turns():
     data5 = np.array([4, 4, 0, -1, -1, -3, 2, 2, 2, 0, 7, 7, 3, 3, 3])
     ans5 = np.array([4, -3, 2, 0, 7, 3])
 
+    peaks1 = rainflow.data_turns(data1)
+    peaks2 = rainflow.data_turns(data2)
+    peaks3 = rainflow.data_turns(data3)
+    peaks4 = rainflow.data_turns(data4)
+    peaks5 = rainflow.data_turns(data5)
 
-    peaks1 = get_turns(data1)
-    peaks2 = get_turns(data2)
-    peaks3 = get_turns(data3)
-    peaks4 = get_turns(data4)
-    peaks5 = get_turns(data5)
-
-    assert np.alltrue(peaks1 == ans1)
-    assert np.alltrue(peaks2 == ans2)
-    assert np.alltrue(peaks3 == ans3)
-    assert np.alltrue(peaks4 == ans4)
-    assert np.alltrue(peaks5 == ans5)
+    assert np.allclose(peaks1, ans1)
+    assert np.allclose(peaks2, ans2)
+    assert np.allclose(peaks3, ans3)
+    assert np.allclose(peaks4, ans4)
+    assert np.allclose(peaks5, ans5)

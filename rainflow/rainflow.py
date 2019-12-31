@@ -17,19 +17,22 @@ from numba import jit
 
 
 @jit(nopython=True)
-def get_turns(data):
+def data_turns(data):
     """
     Returns the turns (peaks and troughs) of data. Eliminates repeats
     """
-    up = data[0] <= 0
+    was_going_up = data[0] <= 0
+    was_going_down = not was_going_up
     num_turns = 0
 
     for curr_idx in range(1, len(data)):
-        if (up and (data[curr_idx] < data[curr_idx-1])) or \
-           (not up and (data[curr_idx] > data[curr_idx-1])):
+        now_going_down = data[curr_idx] < data[curr_idx-1]
+        now_going_up = data[curr_idx] > data[curr_idx-1]
+        if (was_going_up and now_going_down) or (was_going_down and now_going_up):
             num_turns += 1
             data[num_turns] = data[curr_idx - 1]
-            up = not up
+            was_going_up = not was_going_up
+            was_going_down = not was_going_down
 
     num_turns += 1
     data[num_turns] = data[-1]
@@ -39,7 +42,7 @@ def get_turns(data):
 
 
 @jit(nopython=True)
-def arrange_data_for_rainflow_counting(data):
+def data_rearranged_for_rainflow_counting(data):
     """
     Return data in the format required for Rainflow counting.
     """
@@ -47,7 +50,7 @@ def arrange_data_for_rainflow_counting(data):
     data = np.roll(data, len(data) - max_idx)  # start at the max value
     data = np.concatenate((data, data[0:1]))  # also finish on the max value
 
-    return get_turns(data)
+    return data_turns(data)
 
 
 @jit(nopython=True)  # gives ~20x speed improvement
@@ -55,14 +58,14 @@ def ranges_means(data):
     """
     Return ranges, means of cycles counted using Downing's method 1.
     """
-    turns = arrange_data_for_rainflow_counting(data)
+    turns = data_rearranged_for_rainflow_counting(data)
  
     values = []  # of the current turns being processed
     ranges = []
     means = []
 
-    for peak in turns:
-        values.append(peak)
+    for turn in turns:
+        values.append(turn)
         while len(values) > 2:
             X = abs(values[-1] - values[-2])
             Y = abs(values[-2] - values[-3])
@@ -95,7 +98,7 @@ def get_int_ranges_means(data, scale):
     """
     data = np.array(np.rint(data * scale), dtype=np.int32)
 
-    turns = arrange_data_for_rainflow_counting(data)
+    turns = data_rearranged_for_rainflow_counting(data)
 
     if len(turns) < 2:
         return [], []
